@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-15T20:40:00Z",
+  "title": "Design System: UPlate Sports Dashboard",
+  "extensions": {
+    "colorMeta": {
+      "accent-dusty-blue": {
+        "role": "primary",
+        "displayName": "Dusty UPlate Blue",
+        "canonical": "oklch(0.5 0.10 250)",
+        "tonalRamp": ["oklch(0.15 0.05 250)", "oklch(0.25 0.08 250)", "oklch(0.35 0.095 250)", "oklch(0.45 0.10 250)", "oklch(0.55 0.095 250)", "oklch(0.65 0.08 250)", "oklch(0.8 0.05 250)", "oklch(0.95 0.02 250)"]
+      },
+      "status-on-track": {
+        "role": "secondary",
+        "displayName": "On-Track Green",
+        "canonical": "oklch(0.55 0.13 145)",
+        "tonalRamp": ["oklch(0.16 0.06 145)", "oklch(0.28 0.09 145)", "oklch(0.38 0.11 145)", "oklch(0.48 0.13 145)", "oklch(0.55 0.13 145)", "oklch(0.68 0.1 145)", "oklch(0.82 0.06 145)", "oklch(0.94 0.045 145)"]
+      },
+      "status-attention": {
+        "role": "secondary",
+        "displayName": "Needs-Attention Amber",
+        "canonical": "oklch(0.55 0.14 65)",
+        "tonalRamp": ["oklch(0.16 0.06 65)", "oklch(0.28 0.1 65)", "oklch(0.38 0.12 65)", "oklch(0.48 0.14 65)", "oklch(0.55 0.14 65)", "oklch(0.68 0.11 65)", "oklch(0.82 0.07 65)", "oklch(0.94 0.035 65)"]
+      },
+      "status-off-track": {
+        "role": "secondary",
+        "displayName": "Off-Track Red",
+        "canonical": "oklch(0.52 0.13 35)",
+        "tonalRamp": ["oklch(0.16 0.06 35)", "oklch(0.28 0.09 35)", "oklch(0.38 0.11 35)", "oklch(0.46 0.13 35)", "oklch(0.52 0.13 35)", "oklch(0.66 0.1 35)", "oklch(0.81 0.06 35)", "oklch(0.94 0.04 35)"]
+      },
+      "status-not-logging": {
+        "role": "secondary",
+        "displayName": "Not-Logging Gray",
+        "canonical": "oklch(0.6 0.01 250)",
+        "tonalRamp": ["oklch(0.2 0.008 250)", "oklch(0.32 0.01 250)", "oklch(0.42 0.01 250)", "oklch(0.52 0.01 250)", "oklch(0.6 0.01 250)", "oklch(0.72 0.008 250)", "oklch(0.84 0.006 250)", "oklch(0.92 0.006 250)"]
+      },
+      "macro-protein": {
+        "role": "tertiary",
+        "displayName": "Muted Plum",
+        "canonical": "oklch(0.5 0.09 320)",
+        "tonalRamp": ["oklch(0.16 0.04 320)", "oklch(0.28 0.06 320)", "oklch(0.38 0.08 320)", "oklch(0.46 0.09 320)", "oklch(0.5 0.09 320)", "oklch(0.64 0.07 320)", "oklch(0.8 0.045 320)", "oklch(0.94 0.03 320)"]
+      },
+      "macro-carbs": {
+        "role": "tertiary",
+        "displayName": "Warm Gold",
+        "canonical": "oklch(0.62 0.13 85)",
+        "tonalRamp": ["oklch(0.18 0.06 85)", "oklch(0.3 0.09 85)", "oklch(0.42 0.11 85)", "oklch(0.54 0.13 85)", "oklch(0.62 0.13 85)", "oklch(0.74 0.1 85)", "oklch(0.86 0.06 85)", "oklch(0.94 0.035 85)"]
+      },
+      "macro-fat": {
+        "role": "tertiary",
+        "displayName": "Quiet Teal",
+        "canonical": "oklch(0.55 0.09 190)",
+        "tonalRamp": ["oklch(0.18 0.04 190)", "oklch(0.3 0.06 190)", "oklch(0.4 0.08 190)", "oklch(0.48 0.09 190)", "oklch(0.55 0.09 190)", "oklch(0.68 0.07 190)", "oklch(0.82 0.04 190)", "oklch(0.94 0.025 190)"]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Cool Neutral Surface",
+        "canonical": "oklch(0.987 0.004 250)",
+        "tonalRamp": ["oklch(0.15 0.01 250)", "oklch(0.28 0.01 250)", "oklch(0.4 0.01 250)", "oklch(0.58 0.012 250)", "oklch(0.72 0.008 250)", "oklch(0.85 0.006 250)", "oklch(0.94 0.004 250)", "oklch(0.987 0.004 250)"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display (Fraunces)", "purpose": "One verdict-level line per screen — masthead wordmark, weight-goal ETA statement. Never body copy." },
+      "headline": { "displayName": "Headline", "purpose": "Page section titles: Roster, This Week, Season." },
+      "title": { "displayName": "Title", "purpose": "Card and panel titles." },
+      "body": { "displayName": "Body", "purpose": "All reading copy, table cells, descriptions. Max 68ch measure." },
+      "label": { "displayName": "Label", "purpose": "Eyebrows, table headers, status badge text. Always uppercase, always tracked." }
+    },
+    "shadows": [
+      { "name": "soft", "value": "0 1px 2px oklch(0.22 0.01 250 / 0.04)", "purpose": "Subtle lift on raised cards at rest." },
+      { "name": "pop", "value": "0 12px 32px oklch(0.22 0.01 250 / 0.08), 0 2px 6px oklch(0.22 0.01 250 / 0.06)", "purpose": "Modals and popovers." },
+      { "name": "drawer", "value": "16px 0 48px oklch(0.22 0.01 250 / 0.12)", "purpose": "Mobile navigation drawer." }
+    ],
+    "motion": [
+      { "name": "ease-out-quart", "value": "cubic-bezier(0.25, 1, 0.5, 1)", "purpose": "Default easing for hover/state transitions." },
+      { "name": "ease-out-expo", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Sticky bars and drawer entrances." },
+      { "name": "motion-fast", "value": "140ms", "purpose": "Hover, focus, small state changes." },
+      { "name": "motion-base", "value": "200ms", "purpose": "Default transition duration." },
+      { "name": "motion-slow", "value": "280ms", "purpose": "Drawer/sticky-bar entrances." }
+    ],
+    "breakpoints": [
+      { "name": "mobile-max", "value": "639.98px" },
+      { "name": "tablet-max", "value": "959.98px" },
+      { "name": "desktop-min", "value": "960px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Dusty-blue filled button for the one primary action on a screen (create team, generate invite link).",
+      "html": "<button class=\"ds-btn-primary\">Create team</button>",
+      "css": ".ds-btn-primary { background: oklch(0.5 0.10 250); color: oklch(0.98 0.008 250); border: none; border-radius: 10px; padding: 10px 16px; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: background 140ms cubic-bezier(0.25,1,0.5,1); } .ds-btn-primary:hover { background: oklch(0.44 0.105 250); } .ds-btn-primary:active { background: oklch(0.38 0.10 250); } .ds-btn-primary:focus-visible { outline: 2px solid oklch(0.5 0.10 250); outline-offset: 2px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Transparent secondary-action button (cancel, back).",
+      "html": "<button class=\"ds-btn-ghost\">Cancel</button>",
+      "css": ".ds-btn-ghost { background: transparent; color: oklch(0.4 0.01 250); border: none; border-radius: 10px; padding: 10px 16px; font-weight: 500; font-size: 0.875rem; cursor: pointer; transition: background 140ms cubic-bezier(0.25,1,0.5,1), color 140ms cubic-bezier(0.25,1,0.5,1); } .ds-btn-ghost:hover { background: oklch(0.964 0.006 250); color: oklch(0.22 0.01 250); } .ds-btn-ghost:focus-visible { outline: 2px solid oklch(0.5 0.10 250); outline-offset: 2px; }"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "status-badge-on-track",
+      "description": "Label-plus-color pill used on every roster row and athlete header. Swap the two CSS custom properties to retint for attention/off-track/not-logging.",
+      "html": "<span class=\"ds-status-badge\" style=\"--badge-fg: oklch(0.55 0.13 145); --badge-bg: oklch(0.94 0.045 145);\"><svg width=\"8\" height=\"8\" viewBox=\"0 0 8 8\"><circle cx=\"4\" cy=\"4\" r=\"4\" fill=\"currentColor\"/></svg>On track</span>",
+      "css": ".ds-status-badge { display: inline-flex; align-items: center; gap: 5px; color: var(--badge-fg); background: var(--badge-bg); font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Default form field: team name, invite-link label, athlete search.",
+      "html": "<input class=\"ds-input\" type=\"text\" placeholder=\"Team name\" />",
+      "css": ".ds-input { width: 100%; background: transparent; border: 1px solid oklch(0.9 0.012 250); border-radius: 10px; padding: 9px 12px; font-size: 0.875rem; color: oklch(0.22 0.01 250); outline: none; transition: border-color 140ms cubic-bezier(0.25,1,0.5,1), box-shadow 140ms cubic-bezier(0.25,1,0.5,1); } .ds-input::placeholder { color: oklch(0.58 0.012 250); } .ds-input:focus-visible { border-color: oklch(0.5 0.10 250); box-shadow: 0 0 0 3px oklch(0.5 0.10 250 / 0.16); }"
+    },
+    {
+      "name": "Macro Ring",
+      "kind": "custom",
+      "refersTo": "macro-ring",
+      "description": "Concentric calorie/protein/carb/fat ring for the athlete detail view, adapted from the UPlate athlete app's Apple-Fitness-style rings so the coach's view matches the athlete's own.",
+      "html": "<svg class=\"ds-macro-ring\" viewBox=\"0 0 120 120\" width=\"120\" height=\"120\"><circle class=\"ds-macro-ring__track\" cx=\"60\" cy=\"60\" r=\"52\" /><circle class=\"ds-macro-ring__value ds-macro-ring__value--calories\" cx=\"60\" cy=\"60\" r=\"52\" stroke-dasharray=\"245 327\" /></svg>",
+      "css": ".ds-macro-ring circle { fill: none; stroke-width: 10; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 60px 60px; } .ds-macro-ring__track { stroke: oklch(0.5 0.10 250 / 0.14); } .ds-macro-ring__value--calories { stroke: oklch(0.5 0.10 250); transition: stroke-dasharray 280ms cubic-bezier(0.16,1,0.3,1); }"
+    },
+    {
+      "name": "Roster Row",
+      "kind": "custom",
+      "refersTo": "roster-row",
+      "description": "One athlete row in the roster table: status badge, name, today's adherence, weight-trend sparkline. Sorted by status severity, not alphabetically.",
+      "html": "<div class=\"ds-roster-row\"><span class=\"ds-status-badge\" style=\"--badge-fg: oklch(0.55 0.14 65); --badge-bg: oklch(0.94 0.035 65);\">Needs attention</span><span class=\"ds-roster-row__name\">Jordan Lee</span><span class=\"ds-roster-row__meta\">Hasn't logged in 2 days</span></div>",
+      "css": ".ds-roster-row { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 16px; padding: 12px 16px; border-top: 1px solid oklch(0.9 0.012 250); cursor: pointer; transition: background 140ms cubic-bezier(0.25,1,0.5,1); } .ds-roster-row:hover { background: oklch(0.964 0.006 250); } .ds-roster-row__name { font-size: 0.875rem; font-weight: 600; color: oklch(0.22 0.01 250); } .ds-roster-row__meta { font-size: 0.78125rem; color: oklch(0.58 0.012 250); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Coach's Clipboard",
+    "overview": "Not a fitness-tracking app, not a business analytics console — this reads like the clipboard a good coach already carries: quick to scan, unglamorous, built to answer \"who needs me today\" in one look. The visual system inherits its foundation directly from the sibling UPlate Restaurant Dashboard (same cool-neutral surfaces, the same dusty UPlate blue, the same Fraunces + Inter type pairing, the same restrained spacing and motion), so the two products read as members of the same family. What's new here is layered on top: a small, deliberate vocabulary of status colors (on-track, needs attention, off-track, not logging) built for fast roster triage, and a set of macro/weight components adapted from what already works in the UPlate athlete app's Apple-Fitness-style rings. This system explicitly rejects the generic SaaS dashboard, the overstimulated fintech look, and — specific to this domain — the diet-culture fitness-app aesthetic: no shame streaks, no aggressive red \"you failed\" banners, no gamified guilt. A flag on this dashboard means \"look here,\" never \"this athlete failed.\"",
+    "keyCharacteristics": [
+      "Cool-neutral light surface, one restrained accent (dusty blue), status color used deliberately and only where it triages athletes.",
+      "Fraunces carries the one moment of editorial voice; everything else is quiet Inter.",
+      "Status is always label + color, never color alone.",
+      "The weight-projection date is always phrased as an estimate, never a promise."
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "Dusty blue is the only saturated color used for chrome, navigation, and actions. It never competes with the status or macro palettes for attention.", "section": "colors" },
+      { "name": "The Label-Plus-Color Rule", "body": "No status, trend, or flag is ever communicated by color alone. Every colored badge carries a text label or icon.", "section": "colors" },
+      { "name": "The Editorial Restraint Rule", "body": "Fraunces appears in at most two places per screen: a masthead wordmark and one verdict-level line. Everywhere else is Inter.", "section": "typography" },
+      { "name": "The Flat-by-Default Rule", "body": "Surfaces are flat at rest. Shadow appears only as a response to state, never as decoration on static content.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do lead every roster screen with the status badge column.",
+      "Do pair every status color with a text label or icon.",
+      "Do phrase the weight-goal ETA as an estimate, never a guarantee.",
+      "Do keep Fraunces to the masthead wordmark and one verdict line per screen.",
+      "Do use plain language for goal status over clinical or percentage-only labels."
+    ],
+    "donts": [
+      "Don't build a generic SaaS dashboard: no gradient hero-metric tiles, no identical icon+heading+text card grids, no \"Welcome back, Coach!\" hero.",
+      "Don't reach for crypto/fintech overstimulation: no animated gradients, neon glows, or glassmorphism cards.",
+      "Don't use diet-culture or gamified fitness-app patterns: no shame streaks, no \"you failed your goal\" banners, no guilt-tripping copy.",
+      "Don't let any screen read like a surveillance log of an athlete's every bite.",
+      "Don't communicate status, trend, or flags through color alone.",
+      "Don't use border-left/border-right accent stripes, gradient text, or decorative glassmorphism anywhere in the chrome."
+    ]
+  }
+}
