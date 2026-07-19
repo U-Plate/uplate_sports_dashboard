@@ -16,6 +16,19 @@
       rel="stylesheet"
     />
     <title>UPlate · Sports Dashboard</title>
+    <script>
+      // GitHub Pages has no rewrite rule for client-side routes. Save the
+      // requested URL, then return to the app shell where index.html restores it.
+       // GitHub Pages serves 404.html for direct SPA routes. Restore the
+     // requested URL before React's BrowserRouter starts routing.
+    (function () {
+      var redirect = sessionStorage.getItem('uplate-spa-redirect');
+       if (redirect) {
+        sessionStorage.removeItem('uplate-spa-redirect');
+        window.history.replaceState(null, '', redirect);
+      }
+     })();
+    </script>
     <script type="module" crossorigin src="/assets/index-j0vZ8f2_.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-D6hb8Gxu.css">
   </head>
