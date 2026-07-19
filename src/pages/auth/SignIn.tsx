@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
+import { DEMO_COACH } from '../../auth/demo';
 import { ApiError } from '../../api';
 import { Field } from '../../components/ui/Field';
 import { Button } from '../../components/ui/Button';
@@ -66,7 +67,8 @@ export default function SignIn() {
           placeholder="••••••••"
         />
         <p style={{ fontSize: 'var(--type-meta)', color: 'var(--ink-3)' }}>
-          Demo accounts: jordan@uplate.dev or casey@uplate.dev, password coachdemo
+          Demo: {DEMO_COACH.email} or casey@uplate.dev, password {DEMO_COACH.password}. Or skip straight in at{' '}
+          <Link to="/demo">/demo</Link>.
         </p>
         <Button type="submit" disabled={submitting}>
           {submitting ? 'Signing in…' : 'Sign in'}

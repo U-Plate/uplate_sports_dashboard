@@ -104,6 +104,10 @@ input, textarea, select, button {
   animation: uplate-skeleton-pulse 1.6s var(--ease-out-quart) infinite;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+}
+
 /* Visually hidden but accessible */
 .sr-only {
   position: absolute;
@@ -126,9 +130,10 @@ input, textarea, select, button {
   font-family: var(--font-ui);
   font-size: var(--type-eyebrow);
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--track-caps);
   text-transform: uppercase;
-  padding: 3px 10px;
+  /* right padding trimmed by the tracking's trailing space, so the pill reads optically centered */
+  padding: 3px 9px 3px 10px;
   border-radius: var(--r-pill);
 }
 .uplate-status-badge::before {
@@ -273,8 +278,6 @@ input, textarea, select, button {
 
 .uplate-sidebar__wordmark {
   font-family: var(--font-display);
-  font-optical-sizing: auto;
-  font-variation-settings: 'opsz' 72;
   font-weight: 500;
   font-size: 1.375rem;
   line-height: 1.04;
@@ -286,7 +289,7 @@ input, textarea, select, button {
   font-family: var(--font-ui);
   font-size: var(--type-eyebrow);
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: var(--track-caps);
   text-transform: uppercase;
   color: var(--ink-2);
 }
@@ -335,7 +338,7 @@ input, textarea, select, button {
 .uplate-sidebar__item--active,
 .uplate-sidebar__item--active:hover {
   background: var(--accent-tint);
-  border-color: oklch(0.5 0.10 250 / 0.18);
+  border-color: var(--accent-border);
   color: var(--ink);
   font-weight: 600;
 }
@@ -372,7 +375,7 @@ input, textarea, select, button {
   font-family: var(--font-ui);
   font-size: var(--type-eyebrow);
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: var(--track-caps);
   text-transform: uppercase;
   color: var(--ink-2);
 }
@@ -393,7 +396,7 @@ input, textarea, select, button {
 .uplate-input::placeholder { color: var(--ink-3); }
 .uplate-input:focus-visible {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px oklch(0.5 0.10 250 / 0.16);
+  box-shadow: 0 0 0 3px var(--accent-glow);
 }
 .uplate-input[aria-invalid='true'] {
   border-color: var(--status-off-track);
@@ -440,8 +443,6 @@ input, textarea, select, button {
 
 .uplate-auth__wordmark {
   font-family: var(--font-display);
-  font-optical-sizing: auto;
-  font-variation-settings: 'opsz' 72;
   font-weight: 500;
   font-size: clamp(2rem, 1.6rem + 1.5vw, 2.4rem);
   line-height: 1.05;
@@ -627,6 +628,7 @@ input, textarea, select, button {
 
 .uplate-empty-state__title {
   font-size: var(--type-h3);
+  line-height: var(--type-h3-lh);
   font-weight: 600;
   color: var(--ink);
 }
@@ -655,6 +657,12 @@ input, textarea, select, button {
   z-index: 70;
   display: flex;
   justify-content: flex-end;
+}
+
+.uplate-drawer-scrim {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
 }
 
 .uplate-drawer-panel {
@@ -732,22 +740,178 @@ input, textarea, select, button {
   margin-bottom: var(--s-6);
 }
 
-.uplate-athlete-verdict {
-  font-family: var(--font-display);
-  font-style: italic;
-  font-weight: 400;
-  font-size: var(--type-display);
-  line-height: var(--type-display-lh);
-  color: var(--ink);
-  margin: 0;
-  max-width: 44ch;
+/* ---------- Goal track (weight → goal, with projected date) ---------------- */
+
+.uplate-goal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-6);
+  padding: var(--s-5) var(--s-5) var(--s-6);
+  background: var(--surface-raised);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
 }
 
-.uplate-athlete-verdict--muted {
-  font-family: var(--font-ui);
-  font-style: normal;
-  font-size: var(--type-body);
+.uplate-goal__track-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.uplate-goal__legend {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-4);
+  font-size: var(--type-meta);
+  color: var(--ink-3);
+}
+
+/* Deliberately not inline-flex + gap: the bare text nodes around the value
+   would each become flex items and pick up spurious gaps. */
+.uplate-goal__key::before {
+  content: '';
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
+  position: relative;
+  top: -1px;
+}
+.uplate-goal__key--start::before {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink-3);
+}
+.uplate-goal__key--goal::before {
+  width: 3px;
+  height: 12px;
+  border-radius: var(--r-pill);
+  background: var(--status-on-track);
+}
+.uplate-goal__key--goal {
+  color: var(--status-on-track);
+  font-weight: 600;
+}
+
+.uplate-goal__track {
+  position: relative;
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--surface-sunken);
+  border: 1px solid var(--hairline);
+  /* room for the marker and goal post to sit proud of the rail */
+  margin: 8px 0;
+}
+
+.uplate-goal__travelled {
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  opacity: 0.28;
+}
+
+.uplate-goal__start {
+  position: absolute;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--surface-raised);
+  border: 1.5px solid var(--ink-3);
+  transform: translate(-50%, -50%);
+}
+
+.uplate-goal__marker {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 3px solid var(--surface-raised);
+  transform: translate(-50%, -50%);
+  transition: left var(--motion-slow) var(--ease-out-expo);
+}
+
+.uplate-goal__goal-post {
+  position: absolute;
+  top: 50%;
+  width: 3px;
+  height: 18px;
+  border-radius: var(--r-pill);
+  background: var(--status-on-track);
+  transform: translate(-50%, -50%);
+}
+
+.uplate-goal__now {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-2);
+  flex-wrap: wrap;
+}
+
+.uplate-goal__now-value {
+  font-size: var(--type-h3);
+  line-height: var(--type-h3-lh);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.uplate-goal__now-gap {
+  font-size: var(--type-meta);
   color: var(--ink-2);
+}
+
+.uplate-goal__eta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--hairline);
+}
+
+.uplate-goal__eta-label {
+  font-family: var(--font-ui);
+  font-size: var(--type-eyebrow);
+  font-weight: 600;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* The one Fraunces moment on this screen (The Editorial Restraint Rule). */
+.uplate-goal__eta-value {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.5rem, 1.15rem + 1.4vw, 2rem);
+  line-height: 1.15;
+  letter-spacing: -0.018em;
+  color: var(--ink);
+}
+
+.uplate-goal__eta-value--pending {
+  color: var(--ink-2);
+}
+
+/* "around" is a hedge, not a headline: it stays small so the date reads first
+   while the estimate never passes itself off as a promise. */
+.uplate-goal__eta-approx {
+  font-family: var(--font-ui);
+  font-size: var(--type-body);
+  font-weight: 500;
+  font-style: normal;
+  color: var(--ink-3);
+  letter-spacing: 0;
+}
+
+.uplate-goal__eta-caveat {
+  font-size: var(--type-meta);
+  color: var(--ink-3);
+  max-width: 52ch;
+  margin-top: var(--s-1);
 }
 
 .uplate-zone {
@@ -757,10 +921,42 @@ input, textarea, select, button {
   margin-bottom: var(--s-8);
 }
 
+.uplate-athlete-header__identity {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+
+.uplate-athlete-header__reason {
+  font-size: var(--type-body);
+  color: var(--ink-2);
+  max-width: var(--measure);
+}
+
+.uplate-zone__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+}
+
+.uplate-range-note {
+  font-size: var(--type-body);
+  color: var(--ink-2);
+  max-width: var(--measure);
+}
+
+.uplate-zone__empty {
+  font-size: var(--type-body);
+  color: var(--ink-3);
+}
+
 .uplate-zone__eyebrow {
   font-family: var(--font-ui);
   font-size: var(--type-eyebrow);
-  letter-spacing: 0.12em;
+  letter-spacing: var(--track-caps);
   text-transform: uppercase;
   color: var(--ink-3);
   font-weight: 600;
@@ -794,41 +990,232 @@ input, textarea, select, button {
   color: var(--accent-on);
 }
 
-.uplate-meal-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--s-3);
-  padding: var(--s-3) 0;
+/* ---------- Meal log: day → meal → nutrition disclosure -------------------- */
+
+.uplate-log {
+  border-top: 1px solid var(--hairline);
+}
+
+.uplate-meal,
+.uplate-day {
   border-bottom: 1px solid var(--hairline);
 }
-.uplate-meal-row:last-child { border-bottom: none; }
+.uplate-log > .uplate-meal:last-child,
+.uplate-log > .uplate-day:last-child { border-bottom: none; }
 
-.uplate-meal-row__name {
+.uplate-meal__summary,
+.uplate-day__summary {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-2);
+  background: transparent;
+  border: none;
+  text-align: left;
+  color: inherit;
+  border-radius: var(--r-sm);
+  transition: background var(--motion-fast) var(--ease-out-quart);
+}
+.uplate-meal__summary:hover,
+.uplate-day__summary:hover { background: var(--surface-sunken); }
+
+.uplate-meal__chevron {
+  flex-shrink: 0;
+  color: var(--ink-3);
+  transition: transform var(--motion-fast) var(--ease-out-quart);
+}
+.uplate-meal__chevron[data-open='true'] { transform: rotate(90deg); }
+
+.uplate-meal__identity {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.uplate-meal__name {
   font-size: var(--type-body);
   font-weight: 600;
   color: var(--ink);
 }
-.uplate-meal-row__time {
+.uplate-meal__time {
   font-size: var(--type-meta);
   color: var(--ink-3);
 }
-.uplate-meal-row__macros {
-  font-size: var(--type-meta);
-  color: var(--ink-2);
+
+/* Calories lead, breakdown beneath: mirrors the name/time stack opposite it, so
+   the row reads as two columns rather than one long string that wraps. */
+.uplate-meal__values {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  min-width: 0;
   text-align: right;
-  flex-shrink: 0;
 }
 
-.uplate-day-row {
+.uplate-meal__calories {
+  font-size: var(--type-body);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.uplate-meal__macros {
+  font-size: var(--type-meta);
+  color: var(--ink-3);
+}
+
+/* Narrow screens: give the food name the full width instead of letting the
+   macro column squeeze it into three lines. */
+@media (max-width: 560px) {
+  .uplate-meal__summary {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    row-gap: var(--s-1);
+  }
+  .uplate-meal__chevron { margin-top: 3px; }
+  .uplate-meal__values {
+    grid-column: 2;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: flex-start;
+    text-align: left;
+    gap: var(--s-1) var(--s-2);
+  }
+}
+
+.uplate-day--empty {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--s-3);
-  padding: var(--s-3) 0;
-  border-bottom: 1px solid var(--hairline);
+  /* matches the summary button's padding so empty days align with the rest */
+  padding: var(--s-3) var(--s-2);
+  padding-left: calc(var(--s-2) + 15px + var(--s-3));
 }
-.uplate-day-row:last-child { border-bottom: none; }
+
+.uplate-day__date {
+  font-size: var(--type-body);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.uplate-day__meta {
+  flex: 1;
+  font-size: var(--type-meta);
+  color: var(--ink-3);
+}
+
+.uplate-day__value {
+  font-size: var(--type-meta);
+  color: var(--ink-2);
+  text-align: right;
+}
+.uplate-day--empty .uplate-day__value,
+.uplate-day--empty .uplate-day__date { color: var(--ink-3); font-weight: 400; }
+
+/* Nested meals indent under their day so the hierarchy is visible without a
+   second border treatment. */
+.uplate-day__meals {
+  padding-left: calc(15px + var(--s-3));
+  border-top: 1px solid var(--hairline);
+  background: var(--surface-sunken);
+}
+.uplate-day__meals > .uplate-meal:last-child { border-bottom: none; }
+/* the nested tier already sits on sunken, so hover has to move the other way */
+.uplate-day__meals .uplate-meal__summary:hover { background: var(--surface); }
+
+.uplate-nutrition {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  padding: var(--s-4) var(--s-2) var(--s-5);
+  padding-left: calc(var(--s-2) + 15px + var(--s-3));
+  animation: uplate-disclose var(--motion-base) var(--ease-out-quart);
+}
+
+@keyframes uplate-disclose {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .uplate-nutrition { animation: none; }
+}
+
+.uplate-nutrition__serving {
+  font-size: var(--type-meta);
+  color: var(--ink-3);
+}
+
+.uplate-nutrition__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--s-5) var(--s-6);
+  margin: 0;
+}
+
+.uplate-nutrition__group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.uplate-nutrition__group-label {
+  font-family: var(--font-ui);
+  font-size: var(--type-eyebrow);
+  font-weight: 600;
+  letter-spacing: var(--track-caps);
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-bottom: 3px;
+}
+
+.uplate-nutrition__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+  font-size: var(--type-meta);
+}
+.uplate-nutrition__row dt { color: var(--ink-2); }
+.uplate-nutrition__row dd {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.uplate-nutrition__labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.uplate-nutrition__label {
+  font-size: var(--type-eyebrow);
+  font-weight: 600;
+  color: var(--ink-2);
+  background: var(--surface-sunken);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-pill);
+  padding: 3px 9px;
+}
+
+.uplate-nutrition__ingredients {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.uplate-nutrition__ingredients p {
+  font-size: var(--type-meta);
+  line-height: 1.55;
+  color: var(--ink-2);
+  max-width: var(--measure);
+}
 
 .uplate-invite-code {
   display: flex;

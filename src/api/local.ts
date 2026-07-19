@@ -202,7 +202,11 @@ export function createLocalClient(): ApiClient {
 
         const windowDays = timeframe === 'today' ? 1 : timeframe === 'week' ? 7 : SEASON_WINDOW_DAYS;
         const days = Array.from({ length: windowDays }, (_, i) => daysAgoIso(windowDays - 1 - i, new Date(`${today}T00:00:00`)));
-        const dayBreakdowns = days.map((date) => ({ date, totals: sumLog(byDate.get(date)) }));
+        const dayBreakdowns = days.map((date) => ({
+          date,
+          totals: sumLog(byDate.get(date)),
+          meals: byDate.get(date)?.meals ?? [],
+        }));
         const rangeTotals = dayBreakdowns.reduce(
           (acc, d) => ({
             calories: acc.calories + d.totals.calories,

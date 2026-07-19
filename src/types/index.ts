@@ -44,6 +44,22 @@ export interface Athlete {
   macroGoals: MacroGoals;
 }
 
+/** Per-serving detail behind a logged food, as the UPlate app records it. */
+export interface MealNutrition {
+  servingSize: string;
+  caloriesFromFat: number;
+  saturatedFatG: number;
+  sugarG: number;
+  addedSugarsG: number;
+  dietaryFiberG: number;
+  sodiumMg: number;
+  cholesterolMg: number;
+  calciumMg: number;
+  ironMg: number;
+  ingredients: string;
+  labels: string[];
+}
+
 export interface Meal {
   id: string;
   name: string;
@@ -52,6 +68,7 @@ export interface Meal {
   proteinG: number;
   carbsG: number;
   fatG: number;
+  nutrition: MealNutrition;
 }
 
 export interface DailyLog {
@@ -76,6 +93,7 @@ export interface AthleteRosterRow {
 export interface DayBreakdown {
   date: string;
   totals: MacroTotals;
+  meals: Meal[];
 }
 
 export type GoalWeightProjection =

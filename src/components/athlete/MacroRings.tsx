@@ -43,7 +43,7 @@ export function MacroRings({ totals, goals }: { totals: MacroTotals; goals: Macr
                 strokeWidth={10}
                 strokeLinecap="round"
                 strokeDasharray={`${circumference * pct} ${circumference}`}
-                style={{ transition: 'stroke-dasharray 280ms cubic-bezier(0.16,1,0.3,1)' }}
+                style={{ transition: 'stroke-dasharray var(--motion-slow) var(--ease-out-expo)' }}
               />
             </g>
           );

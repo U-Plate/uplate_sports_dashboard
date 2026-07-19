@@ -1,4 +1,4 @@
-import type { Athlete, Coach, DailyLog, GoalType, MacroGoals, Meal, Team, WeightEntry } from '../types';
+import type { Athlete, Coach, DailyLog, GoalType, MacroGoals, Meal, MealNutrition, Team, WeightEntry } from '../types';
 import { daysAgoIso, todayIso } from '../lib/date';
 import { makeId, makeInviteCode } from '../lib/id';
 import { mulberry32, pick, range } from '../lib/rng';
@@ -13,7 +13,7 @@ const LAST_NAMES = [
   'Coleman', 'Vargas', 'Lindgren', 'Boateng', 'Fischer', 'Alvarez', 'Novak', 'Hughes',
 ];
 
-const MEAL_LIBRARY: Record<'breakfast' | 'lunch' | 'dinner' | 'snack', Omit<Meal, 'id' | 'time'>[]> = {
+const MEAL_LIBRARY: Record<'breakfast' | 'lunch' | 'dinner' | 'snack', Omit<Meal, 'id' | 'time' | 'nutrition'>[]> = {
   breakfast: [
     { name: 'Oatmeal, banana, peanut butter', calories: 520, proteinG: 22, carbsG: 68, fatG: 18 },
     { name: 'Greek yogurt parfait', calories: 380, proteinG: 28, carbsG: 45, fatG: 9 },
@@ -39,6 +39,155 @@ const MEAL_LIBRARY: Record<'breakfast' | 'lunch' | 'dinner' | 'snack', Omit<Meal
     { name: 'Apple with almond butter', calories: 220, proteinG: 6, carbsG: 24, fatG: 12 },
   ],
 };
+
+/**
+ * Per-serving detail keyed by meal name. Values are plausible dining-hall
+ * figures, not clinical data: this is mock seed standing in for what the UPlate
+ * app records against each logged food.
+ */
+type MealDetailSeed = Omit<MealNutrition, 'caloriesFromFat'>;
+
+const MEAL_DETAIL: Record<string, MealDetailSeed> = {
+  'Oatmeal, banana, peanut butter': {
+    servingSize: '1 bowl (340 g)',
+    saturatedFatG: 3.4, sugarG: 16, addedSugarsG: 4, dietaryFiberG: 8.2,
+    sodiumMg: 180, cholesterolMg: 0, calciumMg: 120, ironMg: 3.1,
+    ingredients: 'Whole grain rolled oats, banana, peanut butter (peanuts, salt), milk, cinnamon, honey.',
+    labels: ['Vegetarian'],
+  },
+  'Greek yogurt parfait': {
+    servingSize: '1 cup (280 g)',
+    saturatedFatG: 4.1, sugarG: 24, addedSugarsG: 9, dietaryFiberG: 3.4,
+    sodiumMg: 110, cholesterolMg: 22, calciumMg: 310, ironMg: 0.9,
+    ingredients: 'Greek yogurt (cultured nonfat milk), granola (oats, honey, almonds), mixed berries.',
+    labels: ['Vegetarian', 'Contains milk', 'Contains tree nuts'],
+  },
+  'Egg white veggie scramble': {
+    servingSize: '1 plate (250 g)',
+    saturatedFatG: 4.8, sugarG: 5, addedSugarsG: 0, dietaryFiberG: 3.1,
+    sodiumMg: 460, cholesterolMg: 15, calciumMg: 140, ironMg: 2.4,
+    ingredients: 'Egg whites, bell pepper, spinach, onion, mushroom, olive oil, salt, black pepper.',
+    labels: ['Vegetarian', 'Gluten free'],
+  },
+  'Bagel with cream cheese': {
+    servingSize: '1 bagel (145 g)',
+    saturatedFatG: 8.2, sugarG: 8, addedSugarsG: 5, dietaryFiberG: 2.4,
+    sodiumMg: 620, cholesterolMg: 38, calciumMg: 90, ironMg: 3.6,
+    ingredients: 'Enriched wheat flour, water, yeast, malt, salt, cream cheese (milk, cream, cheese culture).',
+    labels: ['Vegetarian', 'Contains wheat', 'Contains milk'],
+  },
+  'Grilled chicken burrito bowl': {
+    servingSize: '1 bowl (520 g)',
+    saturatedFatG: 6.1, sugarG: 6, addedSugarsG: 1, dietaryFiberG: 11.4,
+    sodiumMg: 1180, cholesterolMg: 115, calciumMg: 180, ironMg: 4.2,
+    ingredients: 'Grilled chicken, brown rice, black beans, pico de gallo, romaine, lime, cilantro, olive oil.',
+    labels: ['Gluten free', 'High protein'],
+  },
+  'Turkey club sandwich': {
+    servingSize: '1 sandwich (310 g)',
+    saturatedFatG: 9.4, sugarG: 7, addedSugarsG: 3, dietaryFiberG: 4.1,
+    sodiumMg: 1340, cholesterolMg: 82, calciumMg: 160, ironMg: 3.8,
+    ingredients: 'Wheat bread, roasted turkey breast, bacon, lettuce, tomato, mayonnaise.',
+    labels: ['Contains wheat', 'Contains egg'],
+  },
+  'Salmon salad': {
+    servingSize: '1 plate (390 g)',
+    saturatedFatG: 5.6, sugarG: 5, addedSugarsG: 2, dietaryFiberG: 5.2,
+    sodiumMg: 520, cholesterolMg: 88, calciumMg: 140, ironMg: 2.1,
+    ingredients: 'Atlantic salmon, mixed greens, cucumber, cherry tomato, red onion, olive oil, lemon vinaigrette.',
+    labels: ['Gluten free', 'Contains fish', 'High protein'],
+  },
+  'Pasta primavera': {
+    servingSize: '1 plate (420 g)',
+    saturatedFatG: 5.2, sugarG: 11, addedSugarsG: 2, dietaryFiberG: 7.4,
+    sodiumMg: 680, cholesterolMg: 18, calciumMg: 210, ironMg: 4.4,
+    ingredients: 'Penne pasta (durum wheat semolina), zucchini, squash, bell pepper, garlic, olive oil, parmesan.',
+    labels: ['Vegetarian', 'Contains wheat', 'Contains milk'],
+  },
+  'Steak with sweet potato': {
+    servingSize: '1 plate (450 g)',
+    saturatedFatG: 11.8, sugarG: 12, addedSugarsG: 0, dietaryFiberG: 6.8,
+    sodiumMg: 740, cholesterolMg: 142, calciumMg: 90, ironMg: 5.6,
+    ingredients: 'Sirloin steak, sweet potato, butter, rosemary, garlic, salt, black pepper.',
+    labels: ['Gluten free', 'Contains milk', 'High protein'],
+  },
+  'Chicken stir-fry': {
+    servingSize: '1 bowl (480 g)',
+    saturatedFatG: 4.2, sugarG: 13, addedSugarsG: 6, dietaryFiberG: 6.1,
+    sodiumMg: 1220, cholesterolMg: 108, calciumMg: 120, ironMg: 3.9,
+    ingredients: 'Chicken breast, jasmine rice, broccoli, carrot, snap pea, soy sauce (wheat, soybeans), ginger, sesame oil.',
+    labels: ['Contains soy', 'Contains wheat', 'High protein'],
+  },
+  'Salmon, rice, broccoli': {
+    servingSize: '1 plate (440 g)',
+    saturatedFatG: 4.6, sugarG: 4, addedSugarsG: 0, dietaryFiberG: 6.4,
+    sodiumMg: 480, cholesterolMg: 94, calciumMg: 130, ironMg: 2.8,
+    ingredients: 'Atlantic salmon, brown rice, broccoli, olive oil, lemon, salt.',
+    labels: ['Gluten free', 'Contains fish', 'High protein'],
+  },
+  'Tofu vegetable stir-fry': {
+    servingSize: '1 bowl (460 g)',
+    saturatedFatG: 2.8, sugarG: 12, addedSugarsG: 5, dietaryFiberG: 8.6,
+    sodiumMg: 980, cholesterolMg: 0, calciumMg: 340, ironMg: 5.2,
+    ingredients: 'Firm tofu (soybeans), brown rice, bok choy, carrot, mushroom, soy sauce (wheat, soybeans), sesame oil.',
+    labels: ['Vegan', 'Vegetarian', 'Contains soy', 'Contains wheat'],
+  },
+  'Protein shake': {
+    servingSize: '1 shaker (400 ml)',
+    saturatedFatG: 1.2, sugarG: 4, addedSugarsG: 2, dietaryFiberG: 1.8,
+    sodiumMg: 220, cholesterolMg: 25, calciumMg: 280, ironMg: 1.1,
+    ingredients: 'Whey protein isolate (milk), water, cocoa, natural flavor, sucralose.',
+    labels: ['Vegetarian', 'Contains milk', 'High protein'],
+  },
+  'Trail mix': {
+    servingSize: '1/2 cup (60 g)',
+    saturatedFatG: 3.1, sugarG: 14, addedSugarsG: 8, dietaryFiberG: 3.6,
+    sodiumMg: 95, cholesterolMg: 0, calciumMg: 60, ironMg: 1.7,
+    ingredients: 'Almonds, cashews, raisins, dried cranberries (sugar), dark chocolate chips (soy lecithin).',
+    labels: ['Vegetarian', 'Contains tree nuts', 'Contains soy'],
+  },
+  'Greek yogurt': {
+    servingSize: '1 cup (170 g)',
+    saturatedFatG: 3.2, sugarG: 9, addedSugarsG: 0, dietaryFiberG: 0,
+    sodiumMg: 65, cholesterolMg: 18, calciumMg: 220, ironMg: 0.2,
+    ingredients: 'Cultured pasteurized nonfat milk, live active cultures.',
+    labels: ['Vegetarian', 'Gluten free', 'Contains milk'],
+  },
+  'Apple with almond butter': {
+    servingSize: '1 apple + 2 tbsp (210 g)',
+    saturatedFatG: 1.1, sugarG: 21, addedSugarsG: 0, dietaryFiberG: 6.2,
+    sodiumMg: 40, cholesterolMg: 0, calciumMg: 95, ironMg: 1.4,
+    ingredients: 'Apple, almond butter (dry roasted almonds, sea salt).',
+    labels: ['Vegan', 'Vegetarian', 'Gluten free', 'Contains tree nuts'],
+  },
+};
+
+function round1(value: number): number {
+  return Math.round(value * 10) / 10;
+}
+
+/** Scales the per-serving figures alongside the macros they belong to. */
+function scaleNutrition(name: string, fatG: number, factor: number): MealNutrition {
+  const base = MEAL_DETAIL[name];
+  return rescaleNutrition({ ...base, caloriesFromFat: 0 }, fatG, factor);
+}
+
+function rescaleNutrition(from: MealNutrition, fatG: number, factor: number): MealNutrition {
+  return {
+    servingSize: from.servingSize,
+    ingredients: from.ingredients,
+    labels: from.labels,
+    caloriesFromFat: Math.round(fatG * 9),
+    saturatedFatG: round1(from.saturatedFatG * factor),
+    sugarG: round1(from.sugarG * factor),
+    addedSugarsG: round1(from.addedSugarsG * factor),
+    dietaryFiberG: round1(from.dietaryFiberG * factor),
+    sodiumMg: Math.round(from.sodiumMg * factor),
+    cholesterolMg: Math.round(from.cholesterolMg * factor),
+    calciumMg: Math.round(from.calciumMg * factor),
+    ironMg: round1(from.ironMg * factor),
+  };
+}
 
 const MEAL_TIMES: Record<'breakfast' | 'lunch' | 'dinner' | 'snack', string> = {
   breakfast: '7:45 AM',
@@ -81,6 +230,7 @@ function macroGoalsFor(rand: () => number, goalType: GoalType): MacroGoals {
 function scaledMeal(rand: () => number, slot: keyof typeof MEAL_LIBRARY): Meal {
   const base = pick(rand, MEAL_LIBRARY[slot]);
   const scale = range(rand, 0.88, 1.12);
+  const fatG = Math.round(base.fatG * scale);
   return {
     id: makeId('meal', rand),
     name: base.name,
@@ -88,7 +238,8 @@ function scaledMeal(rand: () => number, slot: keyof typeof MEAL_LIBRARY): Meal {
     calories: Math.round(base.calories * scale),
     proteinG: Math.round(base.proteinG * scale),
     carbsG: Math.round(base.carbsG * scale),
-    fatG: Math.round(base.fatG * scale),
+    fatG,
+    nutrition: scaleNutrition(base.name, fatG, scale),
   };
 }
 
@@ -98,13 +249,19 @@ function generateDayMeals(rand: () => number, targetCalories: number): Meal[] {
   const meals = slots.map((slot) => scaledMeal(rand, slot));
   const currentTotal = meals.reduce((s, m) => s + m.calories, 0);
   const factor = targetCalories / currentTotal;
-  return meals.map((m) => ({
-    ...m,
-    calories: Math.round(m.calories * factor),
-    proteinG: Math.round(m.proteinG * factor),
-    carbsG: Math.round(m.carbsG * factor),
-    fatG: Math.round(m.fatG * factor),
-  }));
+  return meals.map((m) => {
+    const fatG = Math.round(m.fatG * factor);
+    return {
+      ...m,
+      calories: Math.round(m.calories * factor),
+      proteinG: Math.round(m.proteinG * factor),
+      carbsG: Math.round(m.carbsG * factor),
+      fatG,
+      // Rescale what scaledMeal already produced rather than recomputing from
+      // base, so nutrition tracks the same base × scale × factor as the macros.
+      nutrition: rescaleNutrition(m.nutrition, fatG, factor),
+    };
+  });
 }
 
 function generateLogs(rand: () => number, athleteId: string, goals: MacroGoals, archetype: Archetype): DailyLog[] {

@@ -50,13 +50,18 @@ export default function RosterOverview() {
 
   if (teams.length === 0) {
     return (
-      <div className="uplate-empty-state" style={{ marginTop: 'var(--s-6)' }}>
-        <span className="uplate-empty-state__title">Create your first team</span>
-        <p className="uplate-empty-state__body">
-          Once you create a team, you'll get a link to share with your athletes. They join with the UPlate app they
-          already use to log their meals and weight.
-        </p>
-        <Button onClick={() => navigate('/teams/new')}>Create a team</Button>
+      <div>
+        <div className="uplate-page-head">
+          <h1 className="uplate-page-head__title">Roster</h1>
+        </div>
+        <div className="uplate-empty-state">
+          <h2 className="uplate-empty-state__title">Create your first team</h2>
+          <p className="uplate-empty-state__body">
+            Once you create a team, you'll get a link to share with your athletes. They join with the UPlate app they
+            already use to log their meals and weight.
+          </p>
+          <Button onClick={() => navigate('/teams/new')}>Create a team</Button>
+        </div>
       </div>
     );
   }
@@ -123,7 +128,7 @@ export default function RosterOverview() {
         <SkeletonRows />
       ) : !rows || rows.length === 0 ? (
         <div className="uplate-empty-state">
-          <span className="uplate-empty-state__title">No athletes on this team yet</span>
+          <h2 className="uplate-empty-state__title">No athletes on this team yet</h2>
           <p className="uplate-empty-state__body">
             Share the invite link and athletes will show up here as soon as they join from the UPlate app.
           </p>

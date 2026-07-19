@@ -3,10 +3,12 @@ import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { api } from '../api';
 import type { AthleteDetailBundle, Timeframe } from '../types';
-import { formatLongDate, formatShortDate } from '../lib/date';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { MacroRings } from '../components/athlete/MacroRings';
 import { WeightChart } from '../components/athlete/WeightChart';
+import { GoalTrack } from '../components/athlete/GoalTrack';
+import { MealRow } from '../components/athlete/MealRow';
+import { DayRow } from '../components/athlete/DayRow';
 
 const TIMEFRAMES: { key: Timeframe; label: string }[] = [
   { key: 'today', label: 'Today' },
@@ -42,13 +44,13 @@ export default function AthleteDetail() {
   if (!bundle) {
     return (
       <div className="uplate-empty-state">
-        <span className="uplate-empty-state__title">Athlete not found</span>
+        <h1 className="uplate-empty-state__title">Athlete not found</h1>
         <p className="uplate-empty-state__body">This athlete may have left the team.</p>
       </div>
     );
   }
 
-  const { athlete, status, statusReason, projection, today, range, weightHistory } = bundle;
+  const { athlete, status, statusReason, projection, today, range, weightHistory, currentWeightLb } = bundle;
 
   return (
     <div>
@@ -58,11 +60,11 @@ export default function AthleteDetail() {
       </Link>
 
       <div className="uplate-athlete-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--s-3)', flexWrap: 'wrap' }}>
-          <h1 style={{ fontSize: 'var(--type-headline)' }}>{athlete.name}</h1>
+        <div className="uplate-athlete-header__identity">
+          <h1 className="uplate-page-head__title">{athlete.name}</h1>
           <StatusBadge status={status} />
         </div>
-        <p style={{ fontSize: 'var(--type-body)', color: 'var(--ink-2)' }}>{statusReason}</p>
+        <p className="uplate-athlete-header__reason">{statusReason}</p>
       </div>
 
       <div className="uplate-zone">
@@ -71,7 +73,7 @@ export default function AthleteDetail() {
       </div>
 
       <div className="uplate-zone">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--s-3)' }}>
+        <div className="uplate-zone__head">
           <span className="uplate-zone__eyebrow">Meal log</span>
           <div className="uplate-segmented" role="tablist" aria-label="Timeframe">
             {TIMEFRAMES.map((tf) => (
@@ -90,40 +92,24 @@ export default function AthleteDetail() {
           </div>
         </div>
 
-        {range.timeframe !== 'today' && (
-          <p style={{ fontSize: 'var(--type-body)', color: 'var(--ink-2)', margin: 0 }}>
-            Averaging <span className="tnum">{Math.round(range.totals.calories / range.days.length)}</span> cal/day
-            this {range.timeframe === 'week' ? 'week' : 'season'}.
-          </p>
-        )}
+        {range.timeframe !== 'today' && <RangeAverage range={range} />}
 
         {timeframe === 'today' ? (
           today.meals.length === 0 ? (
-            <p style={{ fontSize: 'var(--type-body)', color: 'var(--ink-3)' }}>No meals logged yet today.</p>
+            <p className="uplate-zone__empty">No meals logged yet today.</p>
           ) : (
-            <div>
+            <div className="uplate-log">
               {today.meals.map((meal) => (
-                <div key={meal.id} className="uplate-meal-row">
-                  <div>
-                    <div className="uplate-meal-row__name">{meal.name}</div>
-                    <div className="uplate-meal-row__time">{meal.time}</div>
-                  </div>
-                  <div className="uplate-meal-row__macros tnum">
-                    {meal.calories} cal · {meal.proteinG}p / {meal.carbsG}c / {meal.fatG}f
-                  </div>
-                </div>
+                <MealRow key={meal.id} meal={meal} />
               ))}
             </div>
           )
         ) : (
-          <div>
+          // Keyed by timeframe so switching Week to Season collapses the log
+          // instead of carrying one day's open state into a different view.
+          <div className="uplate-log" key={range.timeframe}>
             {[...range.days].reverse().map((day) => (
-              <div key={day.date} className="uplate-day-row">
-                <span style={{ fontSize: 'var(--type-body)', color: 'var(--ink)' }}>{formatShortDate(day.date)}</span>
-                <span className="tnum" style={{ fontSize: 'var(--type-meta)', color: day.totals.calories === 0 ? 'var(--ink-3)' : 'var(--ink-2)' }}>
-                  {day.totals.calories === 0 ? 'No meals logged' : `${day.totals.calories} cal`}
-                </span>
-              </div>
+              <DayRow key={day.date} day={day} />
             ))}
           </div>
         )}
@@ -131,7 +117,12 @@ export default function AthleteDetail() {
 
       <div className="uplate-zone">
         <span className="uplate-zone__eyebrow">Weight trend</span>
-        <GoalWeightVerdict goalWeightLb={athlete.goalWeightLb} projection={projection} />
+        <GoalTrack
+          history={weightHistory}
+          goalWeightLb={athlete.goalWeightLb}
+          currentWeightLb={currentWeightLb}
+          projection={projection}
+        />
         {weightHistory.length > 0 && (
           <WeightChart history={weightHistory} goalWeightLb={athlete.goalWeightLb} />
         )}
@@ -140,35 +131,27 @@ export default function AthleteDetail() {
   );
 }
 
-function GoalWeightVerdict({
-  goalWeightLb,
-  projection,
-}: {
-  goalWeightLb: number;
-  projection: AthleteDetailBundle['projection'];
-}) {
-  if (projection.kind === 'insufficient-data') {
-    return (
-      <p className="uplate-athlete-verdict uplate-athlete-verdict--muted">
-        Not enough weight history yet to project a goal date. Check back after a few more weigh-ins.
-      </p>
-    );
+/**
+ * Averages across days the athlete actually logged, never across the whole
+ * calendar window: dividing by unlogged days would quietly understate intake
+ * and read as a verdict the data doesn't support.
+ */
+function RangeAverage({ range }: { range: AthleteDetailBundle['range'] }) {
+  const period = range.timeframe === 'week' ? 'this week' : 'this season';
+  const loggedDays = range.days.filter((day) => day.totals.calories > 0);
+
+  if (loggedDays.length === 0) {
+    return <p className="uplate-range-note">No meals logged {period}.</p>;
   }
-  if (projection.kind === 'insufficient-trend') {
-    return (
-      <p className="uplate-athlete-verdict uplate-athlete-verdict--muted">
-        Recent trend isn't moving toward the {goalWeightLb} lb goal yet.
-      </p>
-    );
-  }
-  if (projection.kind === 'at-goal') {
-    return <p className="uplate-athlete-verdict">At goal weight.</p>;
-  }
-  const weeklyRate = Math.abs(projection.weeklyRateLb).toFixed(1);
+
+  const average = Math.round(
+    loggedDays.reduce((sum, day) => sum + day.totals.calories, 0) / loggedDays.length,
+  );
+
   return (
-    <p className="uplate-athlete-verdict">
-      Projected to reach {goalWeightLb} lb around {formatLongDate(projection.projectedDate)}, about {weeklyRate} lb a
-      week.
+    <p className="uplate-range-note">
+      Averaging <span className="tnum">{average}</span> cal on the{' '}
+      {loggedDays.length === 1 ? 'one day' : `${loggedDays.length} days`} logged {period}.
     </p>
   );
 }

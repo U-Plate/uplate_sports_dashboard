@@ -12,6 +12,7 @@ function inviteUrl(code: string): string {
 export function InviteLinkPanel({ team, onClose }: { team: Team; onClose: () => void }) {
   const { regenerateInvite } = useApp();
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
   const [confirmingRegenerate, setConfirmingRegenerate] = useState(false);
   const [regenerating, setRegenerating] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -20,9 +21,36 @@ export function InviteLinkPanel({ team, onClose }: { team: Team; onClose: () => 
   useEffect(() => {
     lastFocusedRef.current = document.activeElement as HTMLElement | null;
     panelRef.current?.querySelector<HTMLElement>('button, a, [tabindex]')?.focus();
+
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key !== 'Tab' || !panelRef.current) return;
+
+      // Keep Tab inside the dialog: aria-modal alone doesn't stop focus escaping
+      // to the roster behind it.
+      const focusable = Array.from(
+        panelRef.current.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (e.shiftKey && (active === first || !panelRef.current.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
+
     window.addEventListener('keydown', onKey);
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -34,9 +62,16 @@ export function InviteLinkPanel({ team, onClose }: { team: Team; onClose: () => 
   }, [onClose]);
 
   async function copyLink() {
-    await navigator.clipboard.writeText(inviteUrl(team.inviteCode));
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(inviteUrl(team.inviteCode));
+      setCopyFailed(false);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard access can be blocked by the browser; the link is on screen,
+      // so say what to do instead of failing silently.
+      setCopyFailed(true);
+    }
   }
 
   async function confirmRegenerate() {
@@ -51,12 +86,10 @@ export function InviteLinkPanel({ team, onClose }: { team: Team; onClose: () => 
 
   return (
     <div className="uplate-drawer-backdrop">
-      <button
-        type="button"
-        aria-label="Close"
-        onClick={onClose}
-        style={{ position: 'absolute', inset: 0, border: 'none', background: 'transparent', cursor: 'pointer' }}
-      />
+      {/* Click-away only. Keyboard users close with Escape or the Close button,
+          so this stays out of the tab order instead of announcing a
+          full-viewport "Close" control. */}
+      <div className="uplate-drawer-scrim" aria-hidden onClick={onClose} />
       <div ref={panelRef} className="uplate-drawer-panel" role="dialog" aria-modal="true" aria-label={`Invite link for ${team.name}`}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 'var(--s-3)' }}>
           <div>
@@ -90,6 +123,12 @@ export function InviteLinkPanel({ team, onClose }: { team: Team; onClose: () => 
             {copied ? 'Copied' : 'Copy'}
           </button>
         </div>
+
+        {copyFailed && (
+          <p className="uplate-field__error" role="alert">
+            Your browser blocked the copy. Select the link above and copy it manually.
+          </p>
+        )}
 
         <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: 'var(--s-3)', paddingTop: 'var(--s-5)', borderTop: '1px solid var(--hairline)' }}>
           {!confirmingRegenerate ? (
