@@ -1,0 +1,3 @@
+# Client-side routing: serve the app shell for any path so deep links
+# (/demo, /settings, /athletes/:id) survive a direct hit or a refresh.
+/*  /index.html  200
